@@ -1,5 +1,8 @@
+import ipaddress
 from mcstatus import MinecraftServer
 import random
+
+ServerFound = 0
 
 def DbUpdate(finalIp, query, status):
     dataBase = open("ServerNameDataBase.txt", "a")
@@ -14,19 +17,25 @@ def DbUpdate(finalIp, query, status):
     dataBase.close()
 
 def find():
+    global ServerFound
+
     try:
         finalIp = '.'.join('%s'%random.randint(0, 255) for i in range(4))
-        print(finalIp)
-        server = MinecraftServer.lookup(finalIp)
+        print(finalIp, ipaddress.ip_address(finalIp).is_private)
 
-        status = server.status()
+        if not ipaddress.ip_address(finalIp).is_private:
+            server = MinecraftServer.lookup(finalIp)
 
-        query = server.query()
+            status = server.status()
 
-        DbUpdate(finalIp, query, status)
+            query = server.query()
 
-        print("server found!")
-        pass
+            DbUpdate(finalIp, query, status)
+
+            print("server found!")
+
+            ServerFound += 1
+            pass
     except:
         print("no server found!")
         pass
